@@ -18,17 +18,19 @@ package com.borjabravo.readmoretextview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextPaint;
+import android.support.v4.content.res.ResourcesCompat;
+import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
+
+
 
 public class ReadMoreTextView extends TextView {
 
@@ -53,8 +55,11 @@ public class ReadMoreTextView extends TextView {
     private int trimMode;
     private int lineEndIndex;
     private int trimLines;
+	private Typeface font;
 
-    public ReadMoreTextView(Context context) {
+
+
+	public ReadMoreTextView(Context context) {
         this(context, null);
     }
 
@@ -74,7 +79,13 @@ public class ReadMoreTextView extends TextView {
         this.showTrimExpandedText =
                 typedArray.getBoolean(R.styleable.ReadMoreTextView_showTrimExpandedText, DEFAULT_SHOW_TRIM_EXPANDED_TEXT);
         this.trimMode = typedArray.getInt(R.styleable.ReadMoreTextView_trimMode, TRIM_MODE_LINES);
-        typedArray.recycle();
+		if (typedArray.hasValue(R.styleable.ReadMoreTextView_clickableTextFont)) {
+			int fontId = typedArray.getResourceId(R.styleable.ReadMoreTextView_clickableTextFont, -1);
+			if (fontId != -1) {
+				font = ResourcesCompat.getFont(context, fontId);
+			}
+		}
+		typedArray.recycle();
         viewMoreSpan = new ReadMoreClickableSpan();
         onGlobalLayoutLineEndIndex();
         setText();
@@ -150,6 +161,11 @@ public class ReadMoreTextView extends TextView {
 
     private CharSequence addClickableSpan(SpannableStringBuilder s, CharSequence trimText) {
         s.setSpan(viewMoreSpan, s.length() - trimText.length(), s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (font != null) {
+			//Typeface.createFromAsset(getAssets(), "fonts/Roboto-Regular.ttf");
+			//s.setSpan(font, 0, selectingCategoryName.length(), SPAN_EXCLUSIVE_EXCLUSIVE);
+			s.setSpan(font, s.length() - trimText.length(), s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
         return s;
     }
 
